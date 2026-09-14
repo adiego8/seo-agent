@@ -11,8 +11,15 @@ and the skills it uses, plus the reports they produce.
 .claude/skills/seo-visibility-report/  SEO visibility audit -> PDF report
 ```
 
-Reports and their evidence files are written to this folder, named
-`[domain]_cro_[YYYY-MM-DD].md` and `[domain]_SEO_[YYYY-MM].pdf`.
+**Each company gets its own folder, `<company>-report/`, and every file for that company lives
+there** — candidates, plan, config, page evidence, the CRO report (`[domain]_cro_[YYYY-MM-DD].md`),
+any SEO PDF (`[domain]_SEO_[YYYY-MM].pdf`), and later additions such as Search Console findings,
+which go into that company's report rather than a new loose file. Nothing is written to the top
+level of this folder.
+
+`<company>` is the domain without `www.` or its ending (`mywelltax.com` → `mywelltax-report/`). If
+a folder for that company already exists under another name, reuse it
+(`numericosoftware.com` → `numerico-report/`).
 
 ## The two skills
 

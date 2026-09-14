@@ -1,0 +1,11 @@
+# Client work: every company's audits live in its own <company>-report/ folder and stay out of git
+*-report/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS / local Claude settings
+.DS_Store
+.claude/settings.local.json
+.claude/worktrees/

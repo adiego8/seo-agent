@@ -20,8 +20,13 @@ Audits a funnel as a **system**, not as a pile of pages: it walks
 `entry → value → proof → offer → conversion`, finds where the path breaks, and writes up
 what to fix in severity order.
 
-**Output:** `[client-domain]_cro_[YYYY-MM-DD].md` — plus
-`[client-domain]_pages_[YYYY-MM-DD].json`, the raw evidence every finding is traceable to.
+**Output:** `[report_dir]/[client-domain]_cro_[YYYY-MM-DD].md` — plus
+`[report_dir]/[client-domain]_pages_[YYYY-MM-DD].json`, the raw evidence every finding is traceable to.
+
+**Every file this skill writes goes inside the company's folder, `[report_dir]`** (e.g.
+`mywelltax-report/`): candidates, plan, config, page evidence and the report. Never write to the
+top level of the project. Later additions for the same company (Search Console data, positioning
+notes) go into that company's existing report, not into a new loose file.
 
 **Cost: zero.** Fetching live HTML and reading it is all this does. No DataForSEO, no
 PageSpeed, no analytics API, nothing metered. Never add a paid call to this workflow without
@@ -55,7 +60,8 @@ Read these before analysing. They hold the judgement; this file holds the proces
 
 ## Step 1 -- Configurator
 
-Check for `[client-domain]_cro_config.json` in the project folder first. If it exists and has
+Check for `[report_dir]/[client-domain]_cro_config.json` first (look inside every `*-report/`
+folder, since an existing company folder may have a different name). If it exists and has
 all five answers, skip to Step 2 and show one line:
 "Using saved config: {business_model} / {primary_conversion} / {reader}."
 
@@ -72,6 +78,11 @@ answer: prepend `https://` if absent, keep the host, and drop the path unless th
 meant a sub-site.
 
 Save the normalised URL as `site` and the bare host (no scheme, no `www.`) as `client_domain`.
+
+Then set `report_dir`, the company's folder: the domain without `www.` or its ending, plus
+`-report` (`mywelltax.com` → `mywelltax-report`). If a `*-report/` folder for this company already
+exists under another name, reuse it (`numericosoftware.com` → `numerico-report`). Create it with
+`mkdir -p` before the first file is written.
 Discovery follows redirects, so `example.com` resolving to `www.example.com/en` is expected --
 do not go back to the user about it.
 
@@ -136,7 +147,7 @@ no audit. Say so if the user drops them.
 ## Step 2 -- Discover the funnel
 
 ```bash
-python3 "[skill_dir]/scripts/fetch_pages.py" discover "[site]" --out "[domain]_candidates.json"
+python3 "[skill_dir]/scripts/fetch_pages.py" discover "[site]" --out "[report_dir]/[domain]_candidates.json"
 ```
 
 Runs right after Q1 (see Step 1). Fetches at most three documents: the homepage, `robots.txt`
@@ -204,7 +215,7 @@ Then ask, plain text: "Here's the funnel I'd audit. Add or remove anything, or s
 Respect edits exactly — the user knows which page is the real money page. If they add a URL
 not in the candidate list, accept it and guess its role.
 
-Write the confirmed list to `[domain]_plan.json`:
+Write the confirmed list to `[report_dir]/[domain]_plan.json`:
 
 ```json
 {
@@ -227,7 +238,7 @@ in Chrome the same way. A page that fails to render comes back as an error, not 
 ## Step 4 -- Fetch
 
 ```bash
-python3 "[skill_dir]/scripts/fetch_pages.py" fetch "[domain]_plan.json" --out "[domain]_pages_[YYYY-MM-DD].json"
+python3 "[skill_dir]/scripts/fetch_pages.py" fetch "[report_dir]/[domain]_plan.json" --out "[report_dir]/[domain]_pages_[YYYY-MM-DD].json"
 ```
 
 One request per page, 1s apart. The script reports `ok_count`, `render_risk_count` and any
@@ -290,7 +301,7 @@ On a rendered run (`"rendered": true` in the pages JSON), "What this audit could
 pages were loaded in a browser before reading, and names any booking or form tool embedded from
 another site (`embeds.*_providers`) whose inside could not be checked.
 
-Save as `[client-domain]_cro_[YYYY-MM-DD].md` in the project folder.
+Save as `[report_dir]/[client-domain]_cro_[YYYY-MM-DD].md`.
 
 **The report is written for the client, not for you.** No internal vocabulary reaches it. If
 a term only makes sense to someone who has read `heuristics.md`, it does not ship:
@@ -372,6 +383,7 @@ and always append "No thanks -- the report is enough".
 {
   "site": "https://example.com",
   "client_domain": "example.com",
+  "report_dir": "example-report",
   "client_name": "Example Ltd",
   "business_model": "lead_gen",
   "primary_conversion": "request a quote",

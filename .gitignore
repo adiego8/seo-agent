@@ -1,5 +1,6 @@
-# Client work: every company's audits live in its own <company>-report/ folder and stay out of git
-*-report/
+# Client work: every company's audits live in its own <company>-report/ folder and stay out of git.
+# Anchored to the project root so the skill folder .claude/skills/cro-funnel-report/ is not caught.
+/*-report/
 
 # Python
 __pycache__/
